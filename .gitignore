@@ -1,6 +1,9 @@
 /*
 !README.md
+!CLAUDE.md
 !.gitignore
-!commands/migrate-build-system.md
-!commands/migrate-cicd-pipeline.md
+!commands/
+!skills/
 
+# .DS_Store は除外
+.DS_Store
