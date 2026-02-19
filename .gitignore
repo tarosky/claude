@@ -4,6 +4,7 @@
 !.gitignore
 !commands/
 !skills/
+!scripts/
 
 # .DS_Store は除外
 .DS_Store

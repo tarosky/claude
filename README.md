@@ -1,73 +1,84 @@
 # claude
 
-Claude Code 用の設定ファイルリポジトリです。カスタムコマンドとスキルを管理しています。
+Claude Code 用のカスタムコマンド・スキル管理リポジトリです。
 
 ## セットアップ
 
-ホームディレクトリの `~/.claude` にこのリポジトリを配置してください。
+任意のディレクトリにクローンし、インストールスクリプトで `~/.claude/` に配置します。
 
 ```bash
-# クローンして配置
-git clone git@github.com:fumikito/claude.git ~/.claude
+# クローン
+git clone git@github.com:tarosky/claude.git ~/claude-config
+
+# コピーでインストール
+~/claude-config/scripts/install.sh
+
+# または、シンボリックリンクでインストール（開発時に便利）
+~/claude-config/scripts/install.sh --link
 ```
 
-既に `~/.claude` が存在する場合は、シンボリックリンクで対応できます。
+既に `~/.claude/skills/` に他のスキル（WordPress 公式など）がある場合でも、同名でない限り共存できます。
 
 ```bash
-git clone git@github.com:fumikito/claude.git ~/claude-config
-ln -s ~/claude-config/commands ~/.claude/commands
-ln -s ~/claude-config/skills ~/.claude/skills
+# 何が実行されるか事前確認
+~/claude-config/scripts/install.sh --dry-run
+
+# アンインストール（このリポジトリのスキル/コマンドだけを削除）
+~/claude-config/scripts/install.sh --uninstall
 ```
 
 ## ディレクトリ構造
 
+<!-- BEGIN:DIRECTORY_TREE -->
 ```
 .
 ├── commands/          # カスタムコマンド（.md）
 │   ├── migrate-build-system.md
 │   └── migrate-cicd-pipeline.md
+├── scripts/           # ユーティリティスクリプト
+│   ├── install.sh
+│   └── sync-readme.mjs
 ├── skills/            # スキル定義
 │   ├── glotpress-translate/
-│   │   └── SKILL.md
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── t-wada/
-│   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   └── references/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-build-setup/
-│   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   └── references/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-ci-setup/
-│   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   └── references/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-i18n-setup/
-│   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   └── references/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   └── wp-test-setup/
-│       ├── SKILL.md
-│       ├── scripts/
-│       └── references/
+│       └── SKILL.md (+ scripts/, references/)
 ├── CLAUDE.md          # プロジェクトレベルの開発方針
 ├── README.md
 └── .gitignore
 ```
+<!-- END:DIRECTORY_TREE -->
 
 ## コマンド一覧
 
+<!-- BEGIN:COMMANDS -->
 | コマンド | 説明 |
 |---------|------|
-| `migrate-build-system` | WordPress プラグインのビルドシステムを Gulp から npm scripts + @kunoichi/grab-deps v3 に移行する |
-| `migrate-cicd-pipeline` | WordPress プラグインの CI/CD パイプラインを責務ごとに分離・整理する |
+| `migrate-build-system` | WordPress プラグインのビルドシステムを Gulp から npm scripts + @kunoichi/grab-deps v3 に移行します。 |
+| `migrate-cicd-pipeline` | WordPress プラグインの CI/CD パイプラインを整理・移行します。 |
+<!-- END:COMMANDS -->
 
 ## スキル一覧
 
+<!-- BEGIN:SKILLS -->
 | スキル | 説明 |
 |-------|------|
-| `glotpress-translate` | GlotPress（translate.wordpress.org）から PO ファイルをダウンロードし、未翻訳部分を AI で翻訳する |
-| `t-wada` | 和田卓人の TDD 哲学を体現する言語非依存のテスト環境アドバイザー。対話を通じて改善プランを作成する |
-| `wp-build-setup` | WordPress プラグインの JS/CSS ビルドパイプライン（grab-deps, sass, postcss, @wordpress/scripts）を診断・構築する |
-| `wp-ci-setup` | WordPress プラグインの GitHub Actions ワークフロー（テスト、リリース、WordPress.org デプロイ、WP バージョン監視）を診断・構築する |
-| `wp-i18n-setup` | WordPress プラグインの翻訳インフラ（GlotPress / POT / PO / MO）を診断・構築する |
-| `wp-test-setup` | WordPress プラグインの PHPUnit・wp-env テスト基盤を診断・構築する |
+| `glotpress-translate` | Translate WordPress plugin/theme PO files from GlotPress (translate.wordpress.org). Downloads PO files, translates untranslated strings with AI, and outputs translated PO for import. |
+| `t-wada` | Language-agnostic TDD advisor inspired by Takuto Wada. Diagnoses test infrastructure and creates improvement plans through interactive dialogue. |
+| `wp-build-setup` | Diagnose and set up JS/CSS build pipeline (grab-deps, sass, postcss, @wordpress/scripts for blocks) for a WordPress plugin project. |
+| `wp-ci-setup` | Diagnose and set up GitHub Actions workflows (test, release-drafter, WordPress.org deploy, WP version monitoring) for a WordPress plugin project. |
+| `wp-i18n-setup` | Diagnose and set up translation infrastructure for a WordPress plugin: GlotPress for WordPress.org plugins, or manual POT/PO/MO workflow for others. |
+| `wp-test-setup` | Diagnose and set up PHPUnit, wp-env, and test scripts for a WordPress plugin project. |
+<!-- END:SKILLS -->
+
+---
+
+各セクションは `node scripts/sync-readme.mjs` で自動更新されます。
