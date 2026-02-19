@@ -29,11 +29,23 @@ ln -s ~/claude-config/skills ~/.claude/skills
 ├── skills/            # スキル定義
 │   ├── glotpress-translate/
 │   │   └── SKILL.md
+│   ├── t-wada/
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   └── references/
 │   ├── wp-build-setup/
 │   │   ├── SKILL.md
 │   │   ├── scripts/
 │   │   └── references/
-│   └── wp-ci-setup/
+│   ├── wp-ci-setup/
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   └── references/
+│   ├── wp-i18n-setup/
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   └── references/
+│   └── wp-test-setup/
 │       ├── SKILL.md
 │       ├── scripts/
 │       └── references/
@@ -54,5 +66,8 @@ ln -s ~/claude-config/skills ~/.claude/skills
 | スキル | 説明 |
 |-------|------|
 | `glotpress-translate` | GlotPress（translate.wordpress.org）から PO ファイルをダウンロードし、未翻訳部分を AI で翻訳する |
+| `t-wada` | 和田卓人の TDD 哲学を体現する言語非依存のテスト環境アドバイザー。対話を通じて改善プランを作成する |
 | `wp-build-setup` | WordPress プラグインの JS/CSS ビルドパイプライン（grab-deps, sass, postcss, @wordpress/scripts）を診断・構築する |
 | `wp-ci-setup` | WordPress プラグインの GitHub Actions ワークフロー（テスト、リリース、WordPress.org デプロイ、WP バージョン監視）を診断・構築する |
+| `wp-i18n-setup` | WordPress プラグインの翻訳インフラ（GlotPress / POT / PO / MO）を診断・構築する |
+| `wp-test-setup` | WordPress プラグインの PHPUnit・wp-env テスト基盤を診断・構築する |
