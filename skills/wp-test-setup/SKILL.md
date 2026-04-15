@@ -1,6 +1,6 @@
 ---
 name: wp-test-setup
-description: "Diagnose and set up PHPUnit, wp-env, and test scripts for a WordPress plugin project."
+description: "WordPressプラグインのPHPUnit、wp-env、テストスクリプトを診断・セットアップする。"
 compatibility: "Targets WordPress plugins with PHP 7.4+. Requires Docker for wp-env. Filesystem-based agent with bash + node."
 ---
 

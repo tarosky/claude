@@ -1,6 +1,6 @@
 ---
 name: wp-i18n-setup
-description: "Diagnose and set up translation infrastructure for a WordPress plugin: GlotPress for WordPress.org plugins, or manual POT/PO/MO workflow for others."
+description: "WordPressプラグインの翻訳基盤を診断・セットアップする。WordPress.org公式プラグインにはGlotPress、それ以外には手動POT/PO/MOワークフローを適用。"
 compatibility: "Targets WordPress plugins with PHP 7.4+. WP-CLI needed for POT generation. Filesystem-based agent with bash + node."
 ---
 

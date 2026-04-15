@@ -75,14 +75,14 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 <!-- BEGIN:SKILLS -->
 | スキル | 説明 |
 |-------|------|
-| `glotpress-translate` | Translate WordPress plugin/theme PO files from GlotPress (translate.wordpress.org). Downloads PO files, translates untranslated strings with AI, and outputs translated PO for import. |
+| `glotpress-translate` | GlotPress（translate.wordpress.org）からWordPressプラグイン/テーマのPOファイルをダウンロードし、未翻訳文字列をAIで翻訳してインポート用POを出力する。 |
 | `skill-review` | スキルセット棚卸しインタビュー。現在のスキル・興味・経験の変化を対話形式で確認し、~/.claude/CLAUDE.md を更新する。四半期に1回の実施を推奨。 |
-| `t-wada` | Language-agnostic testing advisor inspired by Takuto Wada. Diagnoses test infrastructure and creates improvement plans through interactive dialogue. |
-| `wp-build-setup` | Diagnose and set up JS/CSS build pipeline (grab-deps, sass, postcss, @wordpress/scripts for blocks) for a WordPress plugin project. |
-| `wp-ci-setup` | Diagnose and set up GitHub Actions workflows (test, release-drafter, WordPress.org deploy, WP version monitoring) for a WordPress plugin project. |
-| `wp-i18n-setup` | Diagnose and set up translation infrastructure for a WordPress plugin: GlotPress for WordPress.org plugins, or manual POT/PO/MO workflow for others. |
-| `wp-plugin-evaluate` | Evaluate a WordPress plugin's market position, health, and future viability to inform continue/sunset decisions. |
-| `wp-test-setup` | Diagnose and set up PHPUnit, wp-env, and test scripts for a WordPress plugin project. |
+| `t-wada` | t-wadaに着想を得た言語非依存のテストアドバイザー。テスト基盤を診断し、対話形式で改善計画を作成する。 |
+| `wp-build-setup` | WordPressプラグインのJS/CSSビルドパイプライン（grab-deps, sass, postcss, @wordpress/scripts等）を診断・セットアップする。 |
+| `wp-ci-setup` | WordPressプラグインのGitHub Actionsワークフロー（テスト、release-drafter、WordPress.orgデプロイ、WPバージョン監視）を診断・セットアップする。 |
+| `wp-i18n-setup` | WordPressプラグインの翻訳基盤を診断・セットアップする。WordPress.org公式プラグインにはGlotPress、それ以外には手動POT/PO/MOワークフローを適用。 |
+| `wp-plugin-evaluate` | WordPressプラグインの市場ポジション・健全性・将来性を評価し、継続/サンセット判断の材料を提供する。 |
+| `wp-test-setup` | WordPressプラグインのPHPUnit、wp-env、テストスクリプトを診断・セットアップする。 |
 <!-- END:SKILLS -->
 
 ---

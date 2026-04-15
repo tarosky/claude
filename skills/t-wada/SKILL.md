@@ -1,6 +1,6 @@
 ---
 name: t-wada
-description: "Language-agnostic testing advisor inspired by Takuto Wada. Diagnoses test infrastructure and creates improvement plans through interactive dialogue."
+description: "t-wadaに着想を得た言語非依存のテストアドバイザー。テスト基盤を診断し、対話形式で改善計画を作成する。"
 compatibility: "Any project with recognizable language markers (package.json, composer.json, go.mod, Cargo.toml, pyproject.toml). Node.js 18+."
 ---
 
