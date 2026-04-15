@@ -1,6 +1,6 @@
 ---
 name: wp-ci-setup
-description: "Diagnose and set up GitHub Actions workflows (test, release-drafter, WordPress.org deploy, WP version monitoring) for a WordPress plugin project."
+description: "WordPressプラグインのGitHub Actionsワークフロー（テスト、release-drafter、WordPress.orgデプロイ、WPバージョン監視）を診断・セットアップする。"
 compatibility: "Targets GitHub-hosted WordPress plugins. Filesystem-based agent with bash + node."
 ---
 

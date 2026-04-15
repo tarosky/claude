@@ -1,6 +1,6 @@
 ---
 name: wp-plugin-evaluate
-description: "Evaluate a WordPress plugin's market position, health, and future viability to inform continue/sunset decisions."
+description: "WordPressプラグインの市場ポジション・健全性・将来性を評価し、継続/サンセット判断の材料を提供する。"
 compatibility: "WordPress plugin directory as CWD. Requires internet access for WordPress.org API and web search."
 ---
 

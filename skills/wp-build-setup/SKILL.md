@@ -1,6 +1,6 @@
 ---
 name: wp-build-setup
-description: "Diagnose and set up JS/CSS build pipeline (grab-deps, sass, postcss, @wordpress/scripts for blocks) for a WordPress plugin project."
+description: "WordPressプラグインのJS/CSSビルドパイプライン（grab-deps, sass, postcss, @wordpress/scripts等）を診断・セットアップする。"
 compatibility: "Targets WordPress plugins with Node.js 22+. Filesystem-based agent with bash + node."
 ---
 

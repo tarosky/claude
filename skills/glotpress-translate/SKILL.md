@@ -1,6 +1,6 @@
 ---
 name: glotpress-translate
-description: Translate WordPress plugin/theme PO files from GlotPress (translate.wordpress.org). Downloads PO files, translates untranslated strings with AI, and outputs translated PO for import.
+description: "GlotPress（translate.wordpress.org）からWordPressプラグイン/テーマのPOファイルをダウンロードし、未翻訳文字列をAIで翻訳してインポート用POを出力する。"
 allowed-tools: WebFetch, Bash(curl *), Bash(mkdir *), Read, Write, AskUserQuestion
 ---
 

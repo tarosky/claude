@@ -24,7 +24,7 @@
 
 ## 記述言語
 
-コマンドとスキルは日本語で記述してください（SKILL.md の frontmatter 内の `description` は英語可）。
+コマンドとスキルは日本語で記述してください（frontmatter 内の `description` も日本語推奨）。
 
 ## README の自動更新
 
