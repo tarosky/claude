@@ -41,6 +41,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 ├── skills/            # スキル定義
 │   ├── glotpress-translate/
 │   │   └── SKILL.md (+ scripts/, references/)
+│   ├── skill-review/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── t-wada/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-build-setup/
@@ -48,6 +50,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   ├── wp-ci-setup/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-i18n-setup/
+│   │   └── SKILL.md (+ scripts/, references/)
+│   ├── wp-plugin-evaluate/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   └── wp-test-setup/
 │       └── SKILL.md (+ scripts/, references/)
@@ -72,10 +76,12 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 | スキル | 説明 |
 |-------|------|
 | `glotpress-translate` | Translate WordPress plugin/theme PO files from GlotPress (translate.wordpress.org). Downloads PO files, translates untranslated strings with AI, and outputs translated PO for import. |
-| `t-wada` | Language-agnostic TDD advisor inspired by Takuto Wada. Diagnoses test infrastructure and creates improvement plans through interactive dialogue. |
+| `skill-review` | スキルセット棚卸しインタビュー。現在のスキル・興味・経験の変化を対話形式で確認し、~/.claude/CLAUDE.md を更新する。四半期に1回の実施を推奨。 |
+| `t-wada` | Language-agnostic testing advisor inspired by Takuto Wada. Diagnoses test infrastructure and creates improvement plans through interactive dialogue. |
 | `wp-build-setup` | Diagnose and set up JS/CSS build pipeline (grab-deps, sass, postcss, @wordpress/scripts for blocks) for a WordPress plugin project. |
 | `wp-ci-setup` | Diagnose and set up GitHub Actions workflows (test, release-drafter, WordPress.org deploy, WP version monitoring) for a WordPress plugin project. |
 | `wp-i18n-setup` | Diagnose and set up translation infrastructure for a WordPress plugin: GlotPress for WordPress.org plugins, or manual POT/PO/MO workflow for others. |
+| `wp-plugin-evaluate` | Evaluate a WordPress plugin's market position, health, and future viability to inform continue/sunset decisions. |
 | `wp-test-setup` | Diagnose and set up PHPUnit, wp-env, and test scripts for a WordPress plugin project. |
 <!-- END:SKILLS -->
 
