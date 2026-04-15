@@ -44,7 +44,7 @@ jobs:
           labels: |
             wp-org
           assignees: |
-            fumikito
+            your-github-username
 ```
 
 ## カスタマイズ

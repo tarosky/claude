@@ -2,6 +2,14 @@
 
 Claude Code 用のカスタムコマンド・スキル管理リポジトリです。
 
+## このリポジトリについて
+
+[Tarosky](https://github.com/tarosky) が社内で利用している Claude Code の Agent Skills とカスタムコマンド集です。WordPress サイトの保守・プラグイン開発の現場で培ってきたベストプラクティス（ビルドパイプライン、CI/CD、i18n、テスト環境構築など）をスキル化しており、Tarosky 以外の WordPress 開発者の方にもそのままご利用いただけます。
+
+### WordPress 公式 Agent Skills との関係
+
+[WordPress/agent-skills](https://github.com/WordPress/agent-skills) を **補完する位置づけ** です。WordPress 公式スキルが WordPress 全般の基本的な開発支援をカバーするのに対し、本リポジトリは Tarosky が現場で蓄積した運用ノウハウ（`@kunoichi/grab-deps`、`release-drafter`、`wp-env` の構成テンプレートなど）を追加します。両者の併用を想定しており、同名スキルが存在しないため共存可能です。
+
 ## セットアップ
 
 任意のディレクトリにクローンし、インストールスクリプトで `~/.claude/` に配置します。

@@ -35,7 +35,7 @@ jsonファイルの記述例は下記のとおりです。
         "ghcr.io/nulab/backlog-mcp-server"
       ],
       "env": {
-        "BACKLOG_DOMAIN": "tarosky.backlog.jp",
+        "BACKLOG_DOMAIN": "your-org.backlog.jp",
         "BACKLOG_API_KEY": "xxxxxxxxxxxxxxxx"
       }
     },
