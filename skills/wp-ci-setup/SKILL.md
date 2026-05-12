@@ -39,7 +39,7 @@ compatibility: "Targets GitHub-hosted WordPress plugins/themes. Supports two dep
 - GitHubリポジトリの owner/name
 - PHPバージョンマトリクス（サポートする最小・最大バージョン）
 - WordPressバージョンマトリクス（サポートする最小バージョンとlatest）
-- EC2 rsync の場合: SSH ホスト・リモートパス・SSH 鍵 Secret 名・Slack Webhook Secret 名・通知チャンネル
+- EC2 rsync の場合: SSH ホスト・リモートパス・SSH 鍵 Secret 名（通知は GitHub Environments の webhook 等で構成）
 
 ## 手順
 
@@ -91,7 +91,7 @@ JSON出力を確認してください。`exists: false` の項目が対応の必
 **0c-3. バックエンド固有の追加情報を収集**:
 
 - WordPress.org の場合: `WP_ORG_USERNAME` / `WP_ORG_PASSWORD` Secret 名（通常そのまま）、SVN slug
-- EC2 rsync の場合: ステージング/本番それぞれの SSH ユーザー、ホスト、リモートパス、SSH 鍵 Secret 名、Slack Webhook Secret 名、Slack チャンネル
+- EC2 rsync の場合: ステージング/本番それぞれの SSH ユーザー、ホスト、リモートパス、SSH 鍵 Secret 名（デプロイ完了通知は GitHub Environments の webhook 等から発火させる前提）
 
 決定結果はステップ 3) で使用します。
 
@@ -145,13 +145,12 @@ JSON出力を確認してください。`exists: false` の項目が対応の必
 
 作業内容:
 - `.github/workflows/deploy-stg.yml` を作成する（push to master / `staging-*` タグでステージング rsync）
-- `.github/workflows/deploy-prod.yml` を作成する（release published で本番 rsync、`tarosky/workflows/check-tag-in-branch.yml@main` でタグ起源検証、Slack 通知、zip リリースアセット）
+- `.github/workflows/deploy-prod.yml` を作成する（release published で本番 rsync、`tarosky/workflows/check-tag-in-branch.yml@main` でタグ起源検証、zip リリースアセット）
 - `bin/cleanup.sh` または `bin/build.sh` のビルドスクリプトが存在することを確認する（wp-build-setup スキルを参照）
 - 複数ターゲット構成の場合は、選択したターゲットディレクトリを rsync の src に指定する（例: `./wp-content/themes/{slug}/`）。リモートパスは `dest` に直接指定
 - ユーザーに以下の Secrets 設定をリマインドする:
   - `{REPO}_DEPLOY_KEY`: ステージング/本番 SSH 秘密鍵（環境別の場合は2つ）
-  - `SLACK_WEBHOOK`: Slack 通知用 Webhook URL
-- GitHub Environments を作成（`staging`, `production`）し、必要なら approver を設定するよう案内する
+- GitHub Environments を作成（`staging`, `production`）し、必要なら approver と webhook（Slack 等への通知）を設定するよう案内する
 
 #### 3c) デプロイなし
 
