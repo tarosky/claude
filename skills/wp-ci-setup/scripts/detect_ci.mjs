@@ -1,7 +1,14 @@
 import { stat, readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
-const cwd = process.cwd();
+function parsePathArg() {
+  for (const a of process.argv.slice(2)) {
+    if (a.startsWith('--path=')) return resolve(a.slice('--path='.length));
+  }
+  return process.cwd();
+}
+
+const cwd = parsePathArg();
 
 async function statSafe(p) {
   try {
@@ -98,7 +105,7 @@ async function run() {
     recommendation: 'Add a release-drafter workflow to auto-update draft releases on merge to master',
   };
 
-  // 4. wpDeployWorkflow
+  // 4. wpDeployWorkflow (WordPress.org SVN)
   const wpResult = scan((name, content) => {
     return content.includes('10up/action-wordpress-plugin-deploy') ||
       (content.includes('WordPress.org') && content.includes('deploy'));
@@ -106,7 +113,44 @@ async function run() {
   const wpDeployWorkflow = wpResult || {
     exists: false,
     path: null,
-    recommendation: 'Add a WordPress.org deploy workflow triggered on release publish',
+    recommendation: 'Add a WordPress.org SVN deploy workflow (wordpress.yml) triggered on release publish (only for plugins hosted on wordpress.org)',
+  };
+
+  // 4b. ec2RsyncDeployStg (Tarosky EC2 rsync staging)
+  const ec2StgResult = scan((name, content) => {
+    const isStgName = /deploy[-_]?stg|deploy[-_]?staging|staging[-_]?deploy/i.test(name);
+    const usesRsyncer = content.includes('Pendect/action-rsyncer') || /action-rsyncer/i.test(content);
+    const targetsStaging = /environment:\s*\n?\s*name:\s*staging/i.test(content) ||
+      /staging/i.test(content) && /rsync/i.test(content);
+    return (isStgName && usesRsyncer) || (usesRsyncer && targetsStaging);
+  });
+  const ec2RsyncDeployStg = ec2StgResult || {
+    exists: false,
+    path: null,
+    recommendation: 'Add an EC2 rsync staging deploy workflow (deploy-stg.yml) triggered on push to master',
+  };
+
+  // 4c. ec2RsyncDeployProd (Tarosky EC2 rsync production)
+  const ec2ProdResult = scan((name, content) => {
+    const isProdName = /deploy[-_]?prod|deploy[-_]?production|production[-_]?deploy/i.test(name);
+    const usesRsyncer = content.includes('Pendect/action-rsyncer') || /action-rsyncer/i.test(content);
+    const targetsProd = /environment:\s*\n?\s*name:\s*production/i.test(content);
+    return (isProdName && usesRsyncer) || (usesRsyncer && targetsProd);
+  });
+  const ec2RsyncDeployProd = ec2ProdResult || {
+    exists: false,
+    path: null,
+    recommendation: 'Add an EC2 rsync production deploy workflow (deploy-prod.yml) triggered on release publish',
+  };
+
+  // 4d. tagBranchCheck (tarosky/workflows/check-tag-in-branch)
+  const tagCheckResult = scan((name, content) => {
+    return content.includes('tarosky/workflows/.github/workflows/check-tag-in-branch.yml');
+  });
+  const tagBranchCheck = tagCheckResult || {
+    exists: false,
+    path: null,
+    recommendation: 'Use tarosky/workflows/check-tag-in-branch.yml to validate that production tags originate from master branch',
   };
 
   // 5. maintenanceWorkflow
@@ -173,6 +217,9 @@ async function run() {
       testWorkflow,
       releaseDrafterWorkflow,
       wpDeployWorkflow,
+      ec2RsyncDeployStg,
+      ec2RsyncDeployProd,
+      tagBranchCheck,
       maintenanceWorkflow,
       releaseDrafterConfig,
       distignore,

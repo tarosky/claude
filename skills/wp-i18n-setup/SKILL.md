@@ -24,13 +24,30 @@ compatibility: "Targets WordPress plugins with PHP 7.4+. WP-CLI needed for POT g
 
 ## 手順
 
-### 0) 検出スクリプトの実行
+### 0a) ターゲットの解決（複数構成への対応）
+
+まず `wp-multi-target` スキルでリポジトリ構成を確認します。
 
 ```bash
-node ~/.claude/skills/wp-i18n-setup/scripts/detect_i18n.mjs
+node ~/.claude/skills/wp-multi-target/scripts/detect_targets.mjs
 ```
 
-JSON出力を確認してください。重要なフィールド：
+- `targets.length === 1`: そのまま続行（`target.path` を作業ディレクトリとして利用）
+- `targets.length > 1`: ユーザーに「統一ワークフロー / 個別ワークフロー / 特定ターゲットのみ」を質問（`AskUserQuestion` 推奨）。
+  - i18n は text domain がターゲットごとに異なるのが普通なので、**個別ワークフロー**を基本とすることを推奨してください。
+- `shape: "unknown"`: ユーザーに構成をヒアリングしてから続行
+
+詳細は `~/.claude/skills/wp-multi-target/SKILL.md` の対話プロトコルを参照。
+
+### 0b) 検出スクリプトの実行
+
+ターゲットを確定したら、それぞれに対して以下を実行します。
+
+```bash
+node ~/.claude/skills/wp-i18n-setup/scripts/detect_i18n.mjs --path=<target.path>
+```
+
+`--path` を省略した場合は CWD を対象とします（単体構成の従来動作）。JSON出力を確認してください。重要なフィールド：
 - `isWordPressOrgPlugin`: どちらのワークフローに従うかを決定する
 - `exists: false` の項目は対応が必要
 
