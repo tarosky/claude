@@ -1,7 +1,14 @@
 import { readdirSync, statSync, readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-const cwd = process.cwd();
+function parsePathArg() {
+  for (const a of process.argv.slice(2)) {
+    if (a.startsWith('--path=')) return resolve(a.slice('--path='.length));
+  }
+  return process.cwd();
+}
+
+const cwd = parsePathArg();
 
 function statSafe(filePath) {
   try {

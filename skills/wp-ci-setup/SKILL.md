@@ -27,13 +27,42 @@ compatibility: "Targets GitHub-hosted WordPress plugins. Filesystem-based agent 
 
 ## 手順
 
-### 0) 検出スクリプトの実行
+### 0a) ターゲットの解決（複数構成への対応）
+
+まず `wp-multi-target` スキルでリポジトリ構成を確認します。
+
+```bash
+node ~/.claude/skills/wp-multi-target/scripts/detect_targets.mjs
+```
+
+- `targets.length === 1`: そのまま続行
+- `targets.length > 1`: ユーザーに「統一ワークフロー / 個別ワークフロー / 特定ターゲットのみ」を質問（`AskUserQuestion` 推奨）。
+  - テストワークフローは GitHub Actions のマトリクスで全ターゲット並列実行する形にもできる
+  - リリース系（release-drafter, デプロイ）は **必ず 0c) のデプロイ単一選択ルールに従う**
+- `shape: "unknown"`: ユーザーに構成をヒアリングしてから続行
+
+詳細は `~/.claude/skills/wp-multi-target/SKILL.md` の対話プロトコルを参照。
+
+### 0b) 検出スクリプトの実行
+
+CI 設定はリポジトリルートに置くため、CWD で実行します。個別ターゲットの設定状況を見たい場合のみ `--path=<target.path>` を指定してください。
 
 ```bash
 node ~/.claude/skills/wp-ci-setup/scripts/detect_ci.mjs
 ```
 
 JSON出力を確認してください。`exists: false` の項目が対応の必要な箇所です。
+
+### 0c) デプロイ対象の単一選択（必須）
+
+WordPress.org への自動デプロイ（`wordpress.yml`）を作る場合は、**統一ワークフローを選択していたとしても**、デプロイ対象を1つに限定してください。
+
+`AskUserQuestion` で次のいずれかを選ばせる:
+
+1. 1ターゲットを選んでデプロイする（slug と SVN secret を指定）
+2. デプロイは作らない（後で手動セットアップ）
+
+複数 slug を1リポジトリから同時公開すると事故につながりやすいため、必要があればリポジトリ分割を提案してください。決定結果はステップ 3) で使用します。
 
 ### 1) テストワークフローの構築
 
@@ -61,13 +90,16 @@ JSON出力を確認してください。`exists: false` の項目が対応の必
 
 `wpDeployWorkflow` が存在せず、プラグインがWordPress.orgに公開されている場合:
 
+**前提**: ステップ 0c) で「1ターゲットを選んでデプロイする」が選ばれていること。「デプロイは作らない」が選ばれた場合はこのステップをスキップする。
+
 参照:
 - `references/release-workflow.md`（wordpress.yml セクション）
 - `references/distignore.md`
 
 作業内容:
-- .github/workflows/wordpress.yml を作成する（SLUGとSecret名をカスタマイズ）
-- .distignore を作成する
+- .github/workflows/wordpress.yml を作成する（0c で確定した SLUG と Secret 名をカスタマイズ）
+- 複数ターゲット構成の場合は、選択したターゲットディレクトリ（例: `wp-content/plugins/{slug}`）をデプロイソースとして指定する
+- .distignore を作成する（選択ターゲット側に配置）
 - bin/build.sh が存在することを確認する（wp-build-setup スキルを参照）
 - ユーザーに WP_ORG_USERNAME と WP_ORG_PASSWORD のSecretsの設定をリマインドする
 

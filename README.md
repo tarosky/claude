@@ -59,6 +59,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-i18n-setup/
 │   │   └── SKILL.md (+ scripts/, references/)
+│   ├── wp-multi-target/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-plugin-evaluate/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   └── wp-test-setup/
@@ -89,6 +91,7 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 | `wp-build-setup` | WordPressプラグインのJS/CSSビルドパイプライン（grab-deps, sass, postcss, @wordpress/scripts等）を診断・セットアップする。 |
 | `wp-ci-setup` | WordPressプラグインのGitHub Actionsワークフロー（テスト、release-drafter、WordPress.orgデプロイ、WPバージョン監視）を診断・セットアップする。 |
 | `wp-i18n-setup` | WordPressプラグインの翻訳基盤を診断・セットアップする。WordPress.org公式プラグインにはGlotPress、それ以外には手動POT/PO/MOワークフローを適用。 |
+| `wp-multi-target` | リポジトリ内のプラグイン/テーマ・ターゲットを検出し、テスト・リント・ビルド・デプロイ系スキルが複数構成へ安全に対応できるよう対話プロトコルを提供する。 |
 | `wp-plugin-evaluate` | WordPressプラグインの市場ポジション・健全性・将来性を評価し、継続/サンセット判断の材料を提供する。 |
 | `wp-test-setup` | WordPressプラグインのPHPUnit、wp-env、テストスクリプトを診断・セットアップする。 |
 <!-- END:SKILLS -->

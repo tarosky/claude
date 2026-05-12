@@ -1,7 +1,14 @@
 import { stat, readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 
-const cwd = process.cwd();
+function parsePathArg() {
+  for (const a of process.argv.slice(2)) {
+    if (a.startsWith('--path=')) return resolve(a.slice('--path='.length));
+  }
+  return process.cwd();
+}
+
+const cwd = parsePathArg();
 
 async function statSafe(filePath) {
   try {
