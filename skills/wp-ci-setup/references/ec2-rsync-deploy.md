@@ -172,7 +172,7 @@ jobs:
 
 | プレースホルダー | 例 |
 |---|---|
-| `{PROJECT}` | リポジトリ名のアッパースネーク（例: `PRTIMESMEDIA`） |
+| `{PROJECT}` | リポジトリ名のアッパースネーク（例: `MY_PROJECT`） |
 | `{SSH_USER}` | サーバー側のデプロイユーザー（例: `nginx`） |
 | `{STAGING_HOST}` | ステージング SSH ホスト（例: `ssh.example-staging.click`） |
 | `{PROD_HOST}` | 本番 SSH ホスト（例: `ssh.example.com`） |
