@@ -61,6 +61,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-multi-target/
 │   │   └── SKILL.md (+ scripts/, references/)
+│   ├── wp-org-assets/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-plugin-evaluate/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   └── wp-test-setup/
@@ -92,6 +94,7 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 | `wp-ci-setup` | WordPressプラグイン/テーマのGitHub Actionsワークフロー（test.yml、release-drafter、WordPress.org SVN デプロイ または EC2 rsync デプロイ、WPバージョン監視）を診断・セットアップする。 |
 | `wp-i18n-setup` | WordPressプラグインの翻訳基盤を診断・セットアップする。WordPress.org公式プラグインにはGlotPress、それ以外には手動POT/PO/MOワークフローを適用。 |
 | `wp-multi-target` | リポジトリ内のプラグイン/テーマ・ターゲットを検出し、テスト・リント・ビルド・デプロイ系スキルが複数構成へ安全に対応できるよう対話プロトコルを提供する。 |
+| `wp-org-assets` | Taroskyブランドガイドラインに沿って、WordPress.orgプラグイン用のicon.svg・banner-1544x500.jpg・banner-772x250.jpgを作成する。プラグインの新規公開時、またはアイコン/バナー未設置のWP監査Issue対応時に使用する。 |
 | `wp-plugin-evaluate` | WordPressプラグインの市場ポジション・健全性・将来性を評価し、継続/サンセット判断の材料を提供する。 |
 | `wp-test-setup` | WordPressプラグインのPHPUnit、wp-env、テストスクリプトを診断・セットアップする。 |
 <!-- END:SKILLS -->
