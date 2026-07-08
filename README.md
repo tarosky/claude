@@ -47,6 +47,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   ├── install.sh
 │   └── sync-readme.mjs
 ├── skills/            # スキル定義
+│   ├── best-practice-extract/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── glotpress-translate/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── skill-review/
@@ -87,6 +89,7 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 <!-- BEGIN:SKILLS -->
 | スキル | 説明 |
 |-------|------|
+| `best-practice-extract` | 複数リポジトリを横断してテーマ（CI・ビルド・テスト・命名規則など）の実装を調査し、ベストプラクティスを合議で決定して各リポジトリに一括適用・PR作成まで行う横断標準化スキル。 |
 | `glotpress-translate` | GlotPress（translate.wordpress.org）からWordPressプラグイン/テーマのPOファイルをダウンロードし、未翻訳文字列をAIで翻訳してインポート用POを出力する。 |
 | `skill-review` | スキルセット棚卸しインタビュー。現在のスキル・興味・経験の変化を対話形式で確認し、~/.claude/CLAUDE.md を更新する。四半期に1回の実施を推奨。 |
 | `t-wada` | t-wadaに着想を得た言語非依存のテストアドバイザー。テスト基盤を診断し、対話形式で改善計画を作成する。 |
