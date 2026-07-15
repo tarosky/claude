@@ -1,0 +1,67 @@
+name: Release Skills
+
+# ドラフトリリースを publish したタイミングで、
+# コード変更のあったスキルだけを個別 zip にして添付する。
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package_skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 前回リリースとの差分を取るため全履歴・全タグを取得
+          fetch-depth: 0
+
+      - name: 変更のあったスキルを判定して zip 化
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+
+          # 直前の公開リリース（現在のリリースを除いた最新）を取得
+          PREV=$(gh release list \
+            --limit 30 --exclude-drafts --exclude-pre-releases \
+            --json tagName \
+            --jq "[.[] | select(.tagName != \"$TAG\")] | .[0].tagName // \"\"")
+
+          if [ -n "$PREV" ] && git rev-parse -q --verify "refs/tags/$PREV" >/dev/null; then
+            echo "前回リリース: $PREV → 差分のあるスキルのみ対象"
+            DIFF_BASE="$PREV"
+          else
+            echo "前回リリースが見つからないため、全スキルを対象にします"
+            DIFF_BASE=""
+          fi
+
+          mkdir -p dist
+          packaged=0
+
+          for dir in skills/*/; do
+            name="$(basename "$dir")"
+
+            if [ -n "$DIFF_BASE" ]; then
+              # このスキル配下にコード変更が無ければスキップ
+              if git diff --quiet "$DIFF_BASE" "$TAG" -- "$dir"; then
+                echo "skip: $name (変更なし)"
+                continue
+              fi
+            fi
+
+            echo "package: $name"
+            # トップレベルがスキル名フォルダになるよう skills/ 配下で固める
+            (cd skills && zip -r -q "../dist/$name.zip" "$name")
+            gh release upload "$TAG" "dist/$name.zip" --clobber
+            packaged=$((packaged + 1))
+          done
+
+          if [ "$packaged" -eq 0 ]; then
+            echo "コード変更のあったスキルはありませんでした。zip 添付をスキップします。"
+          else
+            echo "$packaged 個のスキルを zip 化して添付しました。"
+          fi

@@ -1,0 +1,45 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+categories:
+  - title: '✨ 新しいスキル・コマンド'
+    labels:
+      - 'feature'
+      - 'skill'
+      - 'command'
+  - title: '🐛 修正'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '🧹 メンテナンス'
+    labels:
+      - 'chore'
+      - 'documentation'
+      - 'refactor'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+change-title-escapes: '\<*_&'
+version-resolver:
+  major:
+    labels:
+      - 'major'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'skill'
+      - 'command'
+  patch:
+    labels:
+      - 'patch'
+      - 'fix'
+      - 'chore'
+  default: patch
+template: |
+  ## 変更点
+
+  $CHANGES
+
+  ---
+
+  このリリースにコード変更のあったスキルは、個別の zip として添付されています。
+  Claude Desktop で利用する場合は、必要なスキルの zip をダウンロードしてアップロードしてください。
