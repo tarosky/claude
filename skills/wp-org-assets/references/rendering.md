@@ -53,6 +53,23 @@ identify banner-1544x500.jpg banner-772x250.jpg
 
 772x250 は **1544x500 のJPGをリサイズしたもの**であって、別々にHTMLをレンダリングしない（フォントのサブピクセル配置等で微妙に見た目が変わってしまうため、「縮小したもの」というレギュレーションにも忠実に従う）。
 
+### 四辺が純白かのピクセル検算（デザイン方針5）
+
+WordPress.org のプラグインページは白背景。バナーの端に少しでも色が残ると「箱」に見えて浮く。PNGを撮ったら **JPG化の前に** 四辺を検算する:
+
+```bash
+for g in North South West East; do
+  dim=1544x1; case $g in West|East) dim=1x500;; esac
+  echo "$g min=$(magick banner-1544x500.png -gravity $g -crop $dim+0+0 +repage -format '%[min]' info:)"
+done
+# すべて min=65535（=255, 純白）であること。1つでも下回る辺は、その方向に
+# 背景グローが届いている。
+```
+
+背景に白ベース + ラジアルグローを敷く場合、グローは必ず端の手前で `rgba(...,0)`（透明 = 白）に収束させる。CSS のラジアルグラデーションは `radial-gradient(<半径x> <半径y> at <中心x> <中心y>, <色> 0%, ... , rgba(r,g,b,0) 100%)` の形で px 指定し、**「中心から各端までの距離」より半径を小さく**する。例: 中心を左端から 224px の位置に置くなら、横半径は 224px 未満（実例では 205px）にして左端を純白に保つ。値を変えたら必ず上の検算を回す（目視で済ませない）。
+
+グローはプラグインの価値を象徴する語の中心に置くと意味が乗る（実例: rich-taxonomy は "Rich" の中心にブルーグローを配置）。リファレンスの `banner.html`（`rich-taxonomy/.claude/wp-org-assets/banner.html`）の `.banner{background:...}` がそのまま参考になる。
+
 ## ジオメトリのコツ
 
 ### 正円を直径で正確に2色に割る
