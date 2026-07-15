@@ -16,6 +16,15 @@ compatibility: "Chrome DevTools MCP（SVGの正確なレンダリング用）と
 
 配置先は各プラグインリポジトリ直下の `.wordpress-org/`。`.distignore` に `.wordpress-org` が正しく（アンダースコアでなくハイフンで）除外登録されているか必ず確認する。既存プラグインには `.wordpress_org`（アンダースコア）という誤記が残っている場合があるので見つけたら修正する。
 
+### 成果物ソースの永続化（重要）
+
+**バナーの編集可能なソース（`banner.html` など）は使い捨てのスクラッチではなく、対象プラグインの `<project>/.claude/wp-org-assets/` に保存してコミットする。** 理由: JPG は再現不能なラスタ成果物なので、ソースを残さないと「グローをもう少し濃く」等の再修正のたびにゼロから組み直しになる（実際に一度成果物を見失った）。`.claude` は `.distignore` で WP.org 配布物から除外され、かつリポジトリにはコミットされるため、ソース置き場として最適。
+
+- `<project>/.claude/wp-org-assets/banner.html` — バナーのマスターソース（ロゴ SVG はインライン埋め込みで自己完結させる）
+- `<project>/.claude/wp-org-assets/README.md` — 再現コマンド（レンダリング → 端検算 → JPG化 → 配置）とデザイン原則
+
+**リファレンス（理想形）**: `rich-taxonomy/.claude/wp-org-assets/banner.html` が現時点のバナー最高到達点。新規プラグインのバナーはこれを出発テンプレートとしてコピーし、プラグイン名・タグライン・グロー位置・icon部分だけ差し替える。
+
 ## デザイン方針（重要・過去のユーザー判断）
 
 このスキルは1回のセッションでの試行錯誤から作られた。以下はユーザーから明示的に確認済みの方針であり、勝手に変えない。
@@ -25,6 +34,7 @@ compatibility: "Chrome DevTools MCP（SVGの正確なレンダリング用）と
 2. **banner にはTaroskyの公式ロゴをそのまま使ってよい。** ただし「ロゴ使用時の禁止事項」（配色変更禁止・変形禁止・異なるタイプフェイス禁止・異なるサブタイトル禁止）は厳守。背景色に応じて用意されている白版/黒版などの sanctioned variant をそのまま使う。
 3. プラグイン名から機能を早合点しない。`taro-lead-next` は名前から「リード獲得（マーケティング）」を連想したが、実際は「投稿のページネーション（次のページへ誘導するブロック）」だった。**必ず README.md / プラグインヘッダーの Description を読んで実際の機能を確認してから**アイコンのモチーフを決めること。
 4. 兄弟プラグイン（同じ組織の他の `.wordpress-org/icon.svg` 等）を調査し、モチーフが被っていないか確認する。詳細は `references/design-process.md`。
+5. **banner の背景は四辺すべてを純白 `#FFFFFF` にフェードさせる。** WordPress.org のプラグインページは白背景なので、端に少しでも色が残るとバナーが「箱」に見えて浮く（過去に左上→右下の斜めグラデがこの問題を起こした）。背景は白ベース + ブランドブルー `#00A9D9` の柔らかいラジアルグローとし、グローは端の手前で必ず `rgba(...,0)`（= 白）に収束させる。中心を端に寄せる場合は半径を「端までの距離」より小さくすること。**生成後はピクセルで四辺が 255 であることを必ず検算する**（目視で済ませない。手順は `references/rendering.md`）。グローはプラグインの価値を象徴する語（例: rich-taxonomy では "Rich"）の中心に置くと意味が乗る。
 
 ## 手順
 
@@ -59,15 +69,23 @@ README.md、プラグイン本体のヘッダーコメント（Description）を
 
 ### 5) banner を HTML + Chrome DevTools MCP でレンダリングする
 
-banner はテキスト（プラグイン名・タグライン）とロゴを含むため、SVG単体よりHTMLで組んでChromeでスクリーンショットする方が扱いやすい。フォントは購入フォント（Futura PT Heavy / 凸版文久見出しゴシック StdN EB）が無い前提で、システムフォントの近似（例: `Avenir Next` Heavy、`Hiragino Sans` W8）で代替してよい—ただし**公式ロゴ自体のタイプフェイスは変更しない**（ロゴはSVGそのまま埋め込む。文字はプラグイン名・タグラインなどロゴ以外の部分にのみ使う）。手順は `references/rendering.md`。
+banner はテキスト（プラグイン名・タグライン）とロゴを含むため、SVG単体よりHTMLで組んでChromeでスクリーンショットする方が扱いやすい。**新規なら `rich-taxonomy/.claude/wp-org-assets/banner.html` をコピーして `<project>/.claude/wp-org-assets/banner.html` を作り、そこを直接編集する**（スクラッチで作って捨てない。上記「成果物ソースの永続化」参照）。フォントは購入フォント（Futura PT Heavy / 凸版文久見出しゴシック StdN EB）が無い前提で、システムフォントの近似（例: `Avenir Next` Heavy、`Hiragino Sans` W8）で代替してよい—ただし**公式ロゴ自体のタイプフェイスは変更しない**（ロゴはSVGそのまま埋め込む。文字はプラグイン名・タグラインなどロゴ以外の部分にのみ使う）。手順は `references/rendering.md`。
 
 ### 6) JPG化・772x250の生成
 
-1544x500のスクリーンショット(PNG)を撮ったら:
+1544x500のスクリーンショット(PNG)を撮ったら、**まず四辺が純白か検算**してからJPG化する:
 
 ```bash
-magick banner-1544x500.png -background white -flatten -quality 90 banner-1544x500.jpg
-magick banner-1544x500.jpg -resize 772x250 banner-772x250.jpg
+# 四辺が純白（min=65535=255）であることを必ず確認（デザイン方針5）
+for g in North South West East; do
+  dim=1544x1; case $g in West|East) dim=1x500;; esac
+  echo "$g min=$(magick banner-1544x500.png -gravity $g -crop $dim+0+0 +repage -format '%[min]' info:)"
+done
+# 65535 でない辺があればグローが端に届いている。banner.html の背景ラジアルの
+# 半径を小さくする / 中心を内側へ寄せてから撮り直す。
+
+magick banner-1544x500.png -background white -flatten -quality 92 banner-1544x500.jpg
+magick banner-1544x500.jpg -resize 772x250 -quality 92 banner-772x250.jpg
 identify banner-1544x500.jpg banner-772x250.jpg   # サイズが正確か必ず確認
 ```
 
@@ -86,8 +104,9 @@ open -a Preview icon-preview.png banner-1544x500.jpg banner-772x250.jpg
 ### 8) 配置・コミット
 
 - `.wordpress-org/icon.svg`、`.wordpress-org/banner-1544x500.jpg`、`.wordpress-org/banner-772x250.jpg` を配置
-- `.distignore` の `.wordpress-org` 表記（ハイフン）を確認・修正
-- 作業用の一時ファイル（スクリーンショット下書きなど）は gitignore 対象のスクラッチディレクトリ（例: `artifacts/`）で作業し、コミット前に削除する
+- **バナーソースを一緒にコミットする**: `<project>/.claude/wp-org-assets/banner.html` と `README.md`（再修正のために必須。上記「成果物ソースの永続化」参照）
+- `.distignore` の `.wordpress-org` 表記（ハイフン）を確認・修正。あわせて `.claude` が `.distignore` に含まれている（= 配布物から除外される）ことも確認
+- レンダリング中間物（`banner-1544x500.png` 等の使い捨て）はスクラッチディレクトリで作業し、コミット前に削除する。**ただし `banner.html` は成果物ソースなので削除せず `.claude/wp-org-assets/` に残す**
 - **必ずフィーチャーブランチで作業する（mainに直接コミットしない）**
 - コミットメッセージは `git cc-commit "..."` を使う（Tarosky/ユーザー標準のCo-Authored-Byエイリアス）
 - PR作成やマージは明示的に指示されるまで行わない
@@ -97,3 +116,4 @@ open -a Preview icon-preview.png banner-1544x500.jpg banner-772x250.jpg
 - `references/brand-guideline.md` — Taroskyブランドの一次情報（色・フォント・禁止事項・Drive内ファイル一覧）
 - `references/rendering.md` — Chrome DevTools MCPでのSVG/HTMLレンダリング手順とハマりどころ
 - `references/design-process.md` — 兄弟プラグインとのモチーフ重複調査、機能からピクトグラムを設計する考え方
+- `rich-taxonomy/.claude/wp-org-assets/banner.html` — **リファレンス（理想形）バナーのマスターソース**。新規バナーはここから複製して差し替える
