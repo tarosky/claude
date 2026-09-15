@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>eyecatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* Maintic 実ブランド配色（2026-09-15に実サイトで確認済み。references/brand-guideline.md参照）。
+     以前ここにあった濃紺＋白抜きの配色は未確認時の憶測で、実ブランドとは別物だった。 */
+  :root {
+    --brand-red: #A60C30;   /* wp preset red-01 / プライマリ */
+    --brand-ink: #242424;   /* wp preset black-01 / 見出し */
+    --brand-paper: #FCF9F4; /* 地色。wp preset bg-beige。references/layout-guide-logo.png の実測値 */
+    --blob: #F7ECE9;        /* 背景Mマークの淡いピンク（references/bg.svg の実値） */
+    --deco: #E7D5D2;        /* モチーフSVG側で面の塗り分けに使う淡い色 */
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+    background: var(--brand-paper);
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  }
+  .canvas { position: relative; width: 1600px; height: 900px; }
+
+  /* セーフエリア: 上下30pxをクロップ代として空ける（references/rendering.md） */
+  .safe-area {
+    position: absolute;
+    left: 0; top: 30px;
+    width: 1600px; height: 840px;
+    box-sizing: border-box;
+    padding: 0 96px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  .text-col { width: 900px; flex: none; }
+
+  /* ブランドロゴ。references/logo.svg（デザイナー支給の正式ロックアップ）を
+     render.mjs がそのまま埋め込む。文字を組み直して似せない。
+     位置・サイズは references/layout-guide-logo.png の実測(1200x630上で 200x40 @ 64,58)を
+     master(1600x900)座標に逆算したもの。og:imageのクロップ(y=30起点/0.75倍)込みで一致する。 */
+  .brand-logo { position: absolute; left: 85.33px; top: 107.33px; width: 266.67px; }
+  .brand-logo svg { width: 100%; height: auto; display: block; }
+
+  /* 背景のMマーク。references/bg.svg（デザイナー支給）。
+     モチーフの後ろに敷く。色はファイル側の #F7ECE9 をそのまま使い、勝手に塗り替えない。
+     位置・サイズは references/layout-guide-logo.png の実測(1200x630上で 中心(1063.5,493.5)・
+     半径343.5 → 外接矩形 687px @ 720,150)を master 座標に逆算したもの。右下へはみ出させる。 */
+  .bg-mark { position: absolute; left: 960px; top: 230px; width: 916px; }
+  .bg-mark svg { width: 100%; height: auto; display: block; }
+
+  /* タイトルは「｜」の前が黒の主題、後ろが臙脂のサブ。
+     フォントサイズは __fitText() が実測して自動で詰めるので、ここの値は初期値でしかない。 */
+  .title {
+    margin: 0;
+    color: var(--brand-ink);
+    font-weight: 900;
+    font-size: 66px;
+    line-height: 1.45;
+    font-feature-settings: "palt" 1;
+    letter-spacing: 0.005em;
+    /* 和文を文節単位で折り返す。「作/り方」のような語中での分割を防ぐ。 */
+    word-break: auto-phrase;
+  }
+  .subtitle {
+    margin: 32px 0 0;
+    color: var(--brand-red);
+    font-weight: 700;
+    font-size: 38px;
+    line-height: 1.5;
+    font-feature-settings: "palt" 1;
+    letter-spacing: 0.01em;
+    word-break: auto-phrase;
+  }
+  .subtitle:empty { display: none; }
+
+  .motif-col { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding-top: 30px; }
+  /* 画像モチーフを使う場合。背景を覆わず右カラム内に収める
+     （この地色デザインでは全面敷き＋暗転スクリムは使わない）。 */
+  .motif-col img { max-width: 520px; max-height: 620px; object-fit: contain; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="bg-mark">{{BG}}</div>
+
+
+
+    <div class="brand-logo">{{LOGO}}</div>
+
+    <div class="safe-area">
+      <div class="text-col">
+        <h1 class="title">{{TITLE}}</h1>
+        <p class="subtitle">{{SUBTITLE}}</p>
+      </div>
+
+      <!-- モチーフ。render.mjs が以下のいずれかに置換する:
+           --motif-svg … SVGファイルの中身をそのまま埋め込む（文字を含めないこと）
+           --motif     … <img src="file://…">（画像生成AIの出力を使う場合） -->
+      <div class="motif-col">{{MOTIF}}</div>
+    </div>
+  </div>
+
+<script>
+  /* タイトル・サブタイトルを実測し、指定行数に収まる最大のフォントサイズまで縮める。
+     font-sizeを決め打ちにすると、長いタイトルで行が溢れたり語中で折り返したりして
+     「文字が読めないアイキャッチ」になる（このスキルが避けたかった当の失敗）。
+     render.mjs がフォント読み込み完了後にこれを呼び、fitted:false なら警告を出す。 */
+  window.__fitText = function () {
+    const fit = (selector, maxLines, maxPx, minPx) => {
+      const el = document.querySelector(selector);
+      if (!el || !el.textContent.trim()) return null;
+      const lineHeight = () => parseFloat(getComputedStyle(el).lineHeight);
+      for (let size = maxPx; size >= minPx; size -= 1) {
+        el.style.fontSize = size + "px";
+        const lines = Math.round(el.getBoundingClientRect().height / lineHeight());
+        if (lines <= maxLines) return { selector, size, lines, fitted: true };
+      }
+      el.style.fontSize = minPx + "px";
+      const lines = Math.round(el.getBoundingClientRect().height / lineHeight());
+      return { selector, size: minPx, lines, fitted: false };
+    };
+    return { title: fit(".title", 2, 76, 44), subtitle: fit(".subtitle", 2, 40, 26) };
+  };
+</script>
+</body>
+</html>
