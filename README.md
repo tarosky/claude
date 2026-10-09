@@ -69,6 +69,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-org-assets/
 │   │   └── SKILL.md (+ scripts/, references/)
+│   ├── wp-org-blueprint/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── wp-plugin-evaluate/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   └── wp-test-setup/
@@ -104,6 +106,7 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 | `wp-i18n-setup` | WordPressプラグインの翻訳基盤を診断・セットアップする。WordPress.org公式プラグインにはGlotPress、それ以外には手動POT/PO/MOワークフローを適用。 |
 | `wp-multi-target` | リポジトリ内のプラグイン/テーマ・ターゲットを検出し、テスト・リント・ビルド・デプロイ系スキルが複数構成へ安全に対応できるよう対話プロトコルを提供する。 |
 | `wp-org-assets` | Taroskyブランドガイドラインに沿って、WordPress.orgプラグイン用のicon.svg・banner-1544x500.jpg・banner-772x250.jpgを作成する。プラグインの新規公開時、またはアイコン/バナー未設置のWP監査Issue対応時に使用する。 |
+| `wp-org-blueprint` | WordPress.org のプラグインページに Live Preview（WordPress Playground）を出すための blueprint.json を、対話でデモの見せ場を決めて作る。プラグインのコードを読んでシナリオを提案し、デモデータの量・時刻依存・外部依存から作り方を決めて runPHP で投入し、ローカルの Playground で動作確認してから .wordpress-org/blueprints/ に置く。「Live Preview を付けたい」「Playground でデモを見せたい」「blueprint を作りたい」ときに使用する。 |
 | `wp-plugin-evaluate` | WordPressプラグインの市場ポジション・健全性・将来性を評価し、継続/サンセット判断の材料を提供する。 |
 | `wp-test-setup` | WordPressプラグインのPHPUnit、wp-env、テストスクリプトを診断・セットアップする。 |
 <!-- END:SKILLS -->

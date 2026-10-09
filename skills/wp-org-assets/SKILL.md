@@ -117,3 +117,7 @@ open -a Preview icon-preview.png banner-1544x500.jpg banner-772x250.jpg
 - `references/rendering.md` — Chrome DevTools MCPでのSVG/HTMLレンダリング手順とハマりどころ
 - `references/design-process.md` — 兄弟プラグインとのモチーフ重複調査、機能からピクトグラムを設計する考え方
 - `rich-taxonomy/.claude/wp-org-assets/banner.html` — **リファレンス（理想形）バナーのマスターソース**。新規バナーはここから複製して差し替える
+
+## 関連スキル
+
+- `wp-org-blueprint` — WordPress.org の Live Preview（Playground）用 blueprint.json を作る。アイコン・バナーと同じ `.wordpress-org/` に置く
