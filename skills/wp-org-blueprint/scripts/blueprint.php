@@ -160,6 +160,9 @@ function cmd_init( string $dir ): void {
  */
 require '/wordpress/wp-load.php';
 
+// runPHP はログインユーザー無しで動く。権限チェックのある API（tax_input など）が黙って無視されるので、管理者として実行する。
+wp_set_current_user( 1 );
+
 // TODO: プラグインの公開 API・モデルでデモデータを投入する。
 
 // 着地ページ: デモ用の固定ページをフロントページにする（ID は事前に分からないため）。

@@ -60,3 +60,12 @@ tarosky/taro-open-hour#123 で作った最初の例。`.wordpress-org/blueprints
 - `tsoh_open_mark` / `tsoh_close_mark` で ○／ を設定
 - Open Hour ブロックと Business Place ブロックを置いた固定ページをフロントページにして `/` に着地
 - 検証: `verify.sh . <out> tsoh-time-table ○ ／ "Sakura Dental Clinic"` → ○ 10 個・／ 4 個
+
+## 参考: hamelp（量が要る例。スキル作成時の試作で、未コミット）
+
+- 売りの AI Overview は AI サービスの設定が要るので見せられない。FAQ・カテゴリ・インクリメンタル検索に絞った
+- 架空のノートアプリ「Acme Notes」のヘルプセンター。カテゴリ 5 つ × 対象 3〜4 つ × 質問テンプレート 2 つで、40 件の自然な FAQ を生成
+- 投稿日は `time()` から 1〜90 日前の相対。乱数のシードは固定
+- 着地ページは検索ボックスのブロックと、Query Loop の「最近更新された FAQ」
+- 実行時間は全体で 11 秒（空のデモとほぼ同じ）
+- 最初は `tax_input` でカテゴリを付けたが、runPHP にログインユーザーがいないため無視され、件数がすべて 0 になった。着地ページの文字列チェックは通っていたので、REST API で件数を確かめて初めて気づいた
