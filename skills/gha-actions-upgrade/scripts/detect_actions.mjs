@@ -188,6 +188,19 @@ function runtimeAt(owner, repo, sub, ref) {
   return null;
 }
 
+// 更新先のバージョン。メジャータグ（v7 など）の最大を優先する。
+// 最新リリースのタグは使わない。codeql-action のように、別系統のタグ（codeql-bundle-v2.27.3）が最新リリースになっているリポジトリがあるため
+function latestVersion(owner, repo, sub) {
+  const out = gh(['api', '--paginate', `repos/${owner}/${repo}/git/matching-refs/tags/v`, '--jq', '.[].ref']);
+  const tags = (out || '').split('\n').map((r) => r.replace('refs/tags/', '')).filter(Boolean);
+  const majors = tags.filter((t) => /^v\d+$/.test(t)).sort((a, b) => Number(b.slice(1)) - Number(a.slice(1)));
+  if (majors.length) return { tag: majors[0], suggest: majors[0], runtime: runtimeAt(owner, repo, sub, majors[0]) };
+  // メジャータグが無いリポジトリは、最新リリースのタグ（バージョン形式のものだけ）を使う
+  const latestTag = ghJson(`repos/${owner}/${repo}/releases/latest`, '.tag_name');
+  if (typeof latestTag !== 'string' || !/^v?\d+(\.\d+)*$/.test(latestTag)) return null;
+  return { tag: latestTag, suggest: latestTag, runtime: runtimeAt(owner, repo, sub, latestTag) };
+}
+
 function resolveAction(ref) {
   if (cache.has(ref)) return cache.get(ref);
   const [path, version] = ref.split('@');
@@ -195,17 +208,7 @@ function resolveAction(ref) {
   const sub = rest.join('/');
   const meta = ghJson(`repos/${owner}/${repo}`, '{archived: .archived, default_branch: .default_branch}');
   const current = runtimeAt(owner, repo, sub, version);
-  const latestTag = ghJson(`repos/${owner}/${repo}/releases/latest`, '.tag_name');
-  let latest = null;
-  if (typeof latestTag === 'string' && latestTag) {
-    const major = latestTag.match(/^(v?\d+)/);
-    const majorTag = major ? major[1] : latestTag;
-    // メジャータグ（v7 など）が無いリポジトリもあるため、無ければ完全なタグを使う
-    const majorRuntime = runtimeAt(owner, repo, sub, majorTag);
-    latest = majorRuntime
-      ? { tag: latestTag, suggest: majorTag, runtime: majorRuntime }
-      : { tag: latestTag, suggest: latestTag, runtime: runtimeAt(owner, repo, sub, latestTag) };
-  }
+  const latest = latestVersion(owner, repo, sub);
   const isBranchRef = meta && typeof meta === 'object' && (version === meta.default_branch || ['master', 'main'].includes(version));
   const result = {
     ref,
@@ -234,6 +237,14 @@ function classify(r) {
 
 // --- 直近の実行結果 ---
 
+// workflow が有効か。active 以外（disabled_inactivity / disabled_manually など）は、PR を出しても実行されない
+function workflowStates(slug) {
+  if (!slug) return null;
+  const list = ghJson(`repos/${slug}/actions/workflows?per_page=100`, '[.workflows[] | {path, state}]');
+  if (!Array.isArray(list)) return null;
+  return new Map(list.map((w) => [w.path.replace('.github/workflows/', ''), w.state]));
+}
+
 function lastRun(slug, file) {
   if (!slug || !withRuns) return null;
   const runs = ghJson(`repos/${slug}/actions/workflows/${file}/runs?per_page=30`, '[.workflow_runs[] | {c: .conclusion, e: .event, d: .created_at[:10]}]');
@@ -251,6 +262,7 @@ async function run() {
     // workflow なし
   }
   const slug = repoSlug();
+  const states = workflowStates(slug);
   const workflows = [];
   const actions = new Map();
 
@@ -282,6 +294,7 @@ async function run() {
       events: triggers.events,
       pushTagsOnly: triggers.pushTagsOnly,
       verification: wfVerification,
+      state: states ? states.get(file) || 'unknown' : null,
       lastRun: lastRun(slug, file),
       jobs,
       nodeVersions,
@@ -310,9 +323,12 @@ async function run() {
           workflow: w.file,
           job: g.job,
           verification: g.verification,
+          state: w.state,
           lastRun: lr,
-          // tag/release でしか動かない、または直近が失敗・未実行なら、PR だけでは検証できない
-          verifiableBeforeRelease: ['PR', 'merge', 'dispatch'].includes(g.verification) && !['failure', 'never'].includes(lr),
+          // tag/release でしか動かない、workflow が無効、または直近が失敗・未実行なら、PR だけでは検証できない
+          verifiableBeforeRelease: ['PR', 'merge', 'dispatch'].includes(g.verification)
+            && (w.state === null || w.state === 'active')
+            && !['failure', 'never'].includes(lr),
           actions: g.refs,
         });
       }

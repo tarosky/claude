@@ -69,6 +69,8 @@ node ~/.claude/skills/gha-actions-upgrade/scripts/detect_actions.mjs --path=<rep
 
 `lastRun` が `failure` / `never` のジョブは、更新前から動いていない。PR の CI が通っても検証にならない。
 
+`state` が `active` 以外（`disabled_inactivity` など）の workflow は、PR を出しても実行されない。60 日間活動のないリポジトリでは、スケジュール実行のある workflow が自動で無効になる。有効にするかはユーザーに確認する（有効にするとスケジュール実行も再開する）。
+
 ### 2) 計画をユーザーに見せる
 
 変更前に、次の表をユーザーに見せて確認を取る。複数リポジトリを一括で扱う場合は、全リポジトリ分をまとめて 1 回見せる。
