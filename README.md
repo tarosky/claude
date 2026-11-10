@@ -53,7 +53,11 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── gas-automation/
 │   │   └── SKILL.md (+ scripts/, references/)
+│   ├── gha-actions-upgrade/
+│   │   └── SKILL.md (+ scripts/, references/)
 │   ├── glotpress-translate/
+│   │   └── SKILL.md (+ scripts/, references/)
+│   ├── node-build-upgrade/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── skill-review/
 │   │   └── SKILL.md (+ scripts/, references/)
@@ -98,7 +102,9 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 | `best-practice-extract` | 複数リポジトリを横断してテーマ（CI・ビルド・テスト・命名規則など）の実装を調査し、ベストプラクティスを合議で決定して各リポジトリに一括適用・PR作成まで行う横断標準化スキル。 |
 | `blog-eyecatch` | Maintic（ja.wpplatform.maintic.com）のブログ記事タイトルから、アイキャッチ画像(1600x900)とog:image(1200x630)を生成する。記事タイトル一覧が確定した後のバッチ生成、または既存記事のog:image差し替えに使用する。 |
 | `gas-automation` | Google Apps Script（GAS）とスプレッドシート/Gmailで社内自動化ツールを作る。空のディレクトリから対話で進め、ノーコーダーでも環境確認・利用形態の決定・コード作成・トリガー設定・引き継ぎ用READMEまで整えられる。「シートを自動で集計したい」「メールを自動で処理したい」「定期的に通知したい」など社内の小さな自動化を作りたいときに使用する。 |
+| `gha-actions-upgrade` | GitHub Actions の action を Node 24 で動くバージョンに更新し、アーカイブ済みの action を置き換えて PR を作る。ビルドの Node（node-version）は変えない。更新した workflow がどこで検証できるか（PR／マージ後／手動実行／リリース時）を PR に明記する。「Node.js 20 is deprecated」の警告を消したい、古い action を一括で更新したいときに使用する。 |
 | `glotpress-translate` | GlotPress（translate.wordpress.org）からWordPressプラグイン/テーマのPOファイルをダウンロードし、未翻訳文字列をAIで翻訳してインポート用POを出力する。 |
+| `node-build-upgrade` | 既存リポジトリの JS/CSS ビルドを Node 24 で動くようにする。変更前のビルド結果を保存し、依存パッケージを更新し、変更前後の CSS を宣言単位で比較し、リリース zip の中身まで確認する。gulp / webpack 4 / node-sass など古いビルド構成のテーマ・プラグインを Node 24 に上げたいとき、ビルドの Node が未指定のリポジトリに Node を指定したいときに使用する。 |
 | `skill-review` | スキルセット棚卸しインタビュー。現在のスキル・興味・経験の変化を対話形式で確認し、~/.claude/CLAUDE.md を更新する。四半期に1回の実施を推奨。 |
 | `t-wada` | t-wadaに着想を得た言語非依存のテストアドバイザー。テスト基盤を診断し、対話形式で改善計画を作成する。 |
 | `wp-build-setup` | WordPressプラグインのJS/CSSビルドパイプライン（grab-deps, sass, postcss, @wordpress/scripts等）を診断・セットアップする。 |
