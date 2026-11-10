@@ -66,10 +66,17 @@ wp_defer_term_counting( false ); // ここで保留していた件数がまと�
 ## 落とし穴
 
 - **runPHP はログインユーザー無しで動く。** `wp_insert_post()` の `tax_input` など、権限チェックのある処理は**エラーを出さずに無視される**（hamelp の試作でカテゴリの件数がすべて 0 になった）。雛形の先頭に `wp_set_current_user( 1 );` を入れてある。消さないこと
+- **パーマリンクは `$wp_rewrite->set_permalink_structure()` で変える。** `update_option( 'permalink_structure', ... )` だけだと、runPHP 内の `$wp_rewrite` は古い構造のまま。最後の `flush_rewrite_rules()` が投稿のルールを書き出さず、`landingPage: "/some-slug/"` がフロントページとして表示される（taro-series で発生）。雛形はこの形にしてある
+- **ブロックを含む本文は `wp_slash()` を通す。** `wp_insert_post()` は本文を unslash するので、ブロックコメントの属性 JSON 内のエスケープ（`\u003c` など）のバックスラッシュが消えて属性が壊れる（for-your-eyes-only で発生）。`'post_content' => wp_slash( serialize_blocks( $blocks ) )` のようにする
 - **着地ページの文字列が出ても、データが正しいとは限らない。** 件数・関連付け・日付は、`KEEP_RUNNING=1` で起動したまま REST API で確かめる（`verify.sh` が作る Cookie ジャーを使う）
 
 ```bash
 KEEP_RUNNING=1 bash <skill>/scripts/verify.sh . <out> "期待する文字列"
 curl -sL -c <out>/cookies.txt -b <out>/cookies.txt "http://127.0.0.1:9431/wp-json/wp/v2/<rest_base>?per_page=100"
+# 本文の raw（ブロックの属性）を見る context=edit は、Cookie に加えて nonce が要る（無いと 401）
+N=$(curl -s -c <out>/cookies.txt -b <out>/cookies.txt "http://127.0.0.1:9431/wp-admin/admin-ajax.php?action=rest-nonce")
+curl -s -c <out>/cookies.txt -b <out>/cookies.txt -H "X-WP-Nonce: $N" "http://127.0.0.1:9431/wp-json/wp/v2/posts?slug=<slug>&context=edit"
 pkill -f 'wp-playground/cli.*--port=9431'
 ```
+
+- **ログイン状態と Cookie。** blueprint に `login` ステップがあると、Playground は最初のリクエストで自動ログインする。ログアウト時の表示を確かめるときは、Cookie `playground_auto_login_already_happened=1` だけを送って取得する（`verify.sh` の `LOGGED_OUT=1`）。逆に REST API などをログイン状態で叩くときは、上のように Cookie ジャーを渡さないと 302 になる

@@ -22,7 +22,7 @@ blueprint 作りの手間の大半は **デモデータの設計**。見せ場�
 スクリプト（`<skill>` はこのスキルのディレクトリ）:
 
 - `php <skill>/scripts/blueprint.php {status|init|embed|check|local} <plugin-dir>` — 状態確認・雛形作成・埋め込み・一致確認・検証用コピー作成
-- `bash <skill>/scripts/verify.sh <plugin-dir> <out-dir> [期待する文字列...]` — ローカルの Playground で実行し、所要時間と着地ページを確認する（`PUBLISHED=1` で公開版を使う、`KEEP_RUNNING=1` でサーバーを残す）
+- `bash <skill>/scripts/verify.sh <plugin-dir> <out-dir> [期待する文字列...]` — ローカルの Playground で実行し、所要時間と着地ページを確認する（`PUBLISHED=1` で公開版を使う、`KEEP_RUNNING=1` でサーバーを残す、`LOGGED_OUT=1` でログアウト状態の表示を見る）
 
 スラッグがディレクトリ名と違う場合（worktree など）は、どちらも `WP_ORG_SLUG=<slug>` を付けて実行する。
 
@@ -34,7 +34,10 @@ blueprint 作りの手間の大半は **デモデータの設計**。見せ場�
 - `php <skill>/scripts/blueprint.php status .` で次を確認し、ユーザーに要約して伝える
   - `published_version`: WordPress.org の公開版。`null` なら未公開で、Live Preview はまだ使えない（blueprint だけ先に作っておくことはできる）
   - `local_version`: タロスカイのプラグインはヘッダーが `nightly` や `%nightly%` のことが多い。その場合は最新タグや Changelog と見比べる
-  - `published_blueprint`: すでに公開済みの blueprint があれば、作り直しか改善かをユーザーに確認する
+  - `blueprint_status`: WordPress.org 上の blueprint の状態。`none` 以外なら、作り直しか改善かをユーザーに確認する
+    - `svn_only`: SVN にはあるが未インポート（コミット直後のラグ。手順 7）
+    - `imported`: インポート済み。コミッターの Test Preview で確認できるが、一般公開はまだ
+    - `public`: Live Preview が一般公開済み
   - `deploy_workflows`: `action-wordpress-plugin-deploy` があれば、`.wordpress-org/` はサブディレクトリごと SVN の assets に同期されるので、deploy.yml の変更は不要。`ASSETS_DIR` が既定と違えば、その場所に置く。**`assets のみ即時更新` のワークフローがある場合**は、blueprint がリリース前に公開されうる（手順 5 参照）
 - `.distignore` に `.wordpress-org` と `.claude` が入っているか確認する（配布 zip に混ざらないように）
 
@@ -74,6 +77,8 @@ demo.php を書くときの原則（詳しくは `references/demo-design.md` と
 
 - 先頭で `require '/wordpress/wp-load.php';`。WordPress がロードされるので `plugins_loaded` 等は発火済み
 - 雛形の `wp_set_current_user( 1 );` は消さない。runPHP はログインユーザー無しで動き、権限チェックのある処理（`tax_input` など）がエラー無しで無視される
+- パーマリンクは雛形どおり `$wp_rewrite->set_permalink_structure()` で変え、最後に `flush_rewrite_rules()`。`update_option( 'permalink_structure' )` では投稿の URL に着地できない
+- ブロックを含む本文は `'post_content' => wp_slash( $content )` で渡す。`wp_insert_post()` が unslash して、属性 JSON のエスケープが壊れる
 - **プラグインの公開 API・モデルを使って投入する。** SQL を直接書かない（テーブル構造の変更で壊れやすい）
 - ID は決め打ちせず、`wp_insert_post()` などの戻り値を使う
 - データは架空のもの（example.com、架空の店名・住所）。実在の人物・企業を使わない
@@ -92,7 +97,7 @@ bash <skill>/scripts/verify.sh . <scratchpad>/verify "期待する文字列1" "�
 - 本番用 blueprint のうち、プラグインのインストール手順だけを「ローカルコードのマウント＋`activatePlugin`」に差し替えた一時コピーで実行する。本番用ファイルは変更しない
 - 検証用コピーには `WP_DEBUG` / `WP_DEBUG_DISPLAY` を足してあるので、PHP エラーは画面とログに出る。`runPHP` の Fatal error は `/internal/eval.php:31` のように出る。この行番号は demo.php の行番号
 - 期待する文字列には、デモデータが出力されたことを示すもの（ブロックの CSS クラス、架空の店名、マークの記号など）を選ぶ
-- 着地ページが管理画面の場合も、`login` ステップがあれば Cookie で自動ログインするので確認できる
+- 着地ページが管理画面の場合も、`login` ステップがあれば Cookie で自動ログインするので確認できる。逆に、ログアウトした訪問者に見える表示（会員限定コンテンツなど）を確かめるときは `LOGGED_OUT=1` を付ける
 - 「Playground 起動〜blueprint 完了」の秒数が出る。空のデモで 10〜12 秒なので、その差がデモデータのコスト
 - **着地ページの文字列だけで済ませない。** 件数・カテゴリとの関連付け・日付は、`KEEP_RUNNING=1` で起動したまま REST API で確かめる（手順は `references/data-strategy.md` の「落とし穴」）。ユーザーに目視してもらうときも `KEEP_RUNNING=1` で URL を渡す
 
@@ -121,6 +126,7 @@ blueprint は WordPress.org の**公開版**をインストールする。demo.p
 - **Live Preview を一般公開するには、コミッターが WordPress.org のプラグイン管理画面（Advanced タブ）で Preview を public に切り替える必要がある。** それまでは Live Preview ボタンはコミッターにしか表示されない
 - 切り替える前に、コミッター向けの **Test Preview** で、実際の Playground でデモが動くことを確認する
 - blueprint が SVN に反映されるのは、デプロイ（通常はリリース）のとき。反映前に管理画面を見ても変化は無い
+- SVN にコミットされてから WordPress.org にインポートされるまで **約 15 分**かかる（assets だけのコミットでもインポートされる）。それまで管理画面には「Missing or invalid blueprint.json」と出る。進み具合は `php <skill>/scripts/blueprint.php status .` の `blueprint_status` で確認できる（`svn_only` → `imported` → `public`）。値に応じて、「15 分ほど待つ」「Test Preview で確認して public に切り替える」「公開済み」のどれかを伝える
 
 ## 範囲外
 

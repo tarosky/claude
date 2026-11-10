@@ -12,7 +12,8 @@
 # 環境変数: PORT（既定 9431）、WP_ORG_SLUG（スラッグがディレクトリ名と違う場合）、
 #           LANDING（確認するパス。既定は blueprint の landingPage）、
 #           PUBLISHED=1（ローカルコードをマウントせず、WordPress.org の公開版で本番どおりに実行する）、
-#           KEEP_RUNNING=1（検証後もサーバーを止めない。ブラウザでの目視や REST の確認に使う）
+#           KEEP_RUNNING=1（検証後もサーバーを止めない。ブラウザでの目視や REST の確認に使う）、
+#           LOGGED_OUT=1（着地ページをログアウト状態で取得する。login ステップがあっても自動ログインさせない）
 # @wp-playground/cli はグローバルインストールせず npx で一時実行する。
 
 set -u
@@ -87,10 +88,18 @@ fi
 echo "Playground 起動〜blueprint 完了: $(( $(date +%s) - STARTED_AT ))秒"
 
 # login ステップがあると初回アクセスで自動ログインの 302 が返り、Cookie が無いとループする。Cookie ジャーを使う。
+# ログアウト状態を見るときは「自動ログイン済み」の Cookie だけを送り、自動ログインを止める。
 JAR="$OUT_DIR/cookies.txt"
 rm -f "$JAR"
-CODE="$(curl -sL -m 120 -c "$JAR" -b "$JAR" -w '%{http_code}' -o "$OUT_DIR/landing.html" "http://127.0.0.1:$PORT$LANDING")"
-echo "GET ${LANDING} → HTTP ${CODE}（${OUT_DIR}/landing.html）"
+if [ "${LOGGED_OUT:-}" = 1 ]; then
+	COOKIE_ARGS=(-b "playground_auto_login_already_happened=1")
+	STATE="ログアウト"
+else
+	COOKIE_ARGS=(-c "$JAR" -b "$JAR")
+	STATE="ログイン"
+fi
+CODE="$(curl -sL -m 120 "${COOKIE_ARGS[@]}" -w '%{http_code}' -o "$OUT_DIR/landing.html" "http://127.0.0.1:$PORT$LANDING")"
+echo "GET ${LANDING}（${STATE}） → HTTP ${CODE}（${OUT_DIR}/landing.html）"
 
 FAILED=0
 if [ "$CODE" != "200" ]; then
