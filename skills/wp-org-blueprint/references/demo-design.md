@@ -38,9 +38,37 @@ README.md / readme.txt の Description・FAQ・スクリーンショットのキ
 | フロントの出力（既定） | `/` | デモ用の固定ページを作り、`show_on_front=page`・`page_on_front=<ID>` |
 | 投稿タイプの一覧 | `/wp-admin/edit.php?post_type=<type>` | `login` ステップ |
 | 設定画面 | `/wp-admin/options-general.php?page=<slug>` など | `login` ステップ |
-| ブロックエディタ | `/wp-admin/post-new.php?post_type=page` | 既存ページの編集は ID が分からないので、新規作成画面か、`/` にしてリンクを置く |
+| ブロックエディタ（新規） | `/wp-admin/post-new.php?post_type=page` | `login` ステップ |
+| ブロックエディタ（デモ投稿の編集） | `/wp-admin/post.php?post=1000&action=edit` | `import_id` で ID を固定し、ウェルカムガイドを閉じておく（下記） |
 
 `login` ステップは、着地がフロントでも入れておく。訪問者がそのまま管理画面を触れる。
+
+### ブロックエディタに着地させる
+
+ブロックの設定パネルなど、編集画面そのものが見せ場なら、デモ投稿の編集画面に着地させる。投稿 ID は `import_id` で固定できる（既存の ID と重ならない大きめの値にする）。ウェルカムガイドが開いたままだと見せ場が隠れるので、`persisted_preferences` ユーザーメタで閉じておく（for-your-eyes-only の例）。
+
+```php
+$post_id = wp_insert_post( array(
+	'import_id'    => 1000,
+	'post_type'    => 'post',
+	'post_status'  => 'publish',
+	'post_title'   => 'Demo post',
+	'post_content' => wp_slash( serialize_blocks( $blocks ) ),
+) );
+
+// ブロックエディタのウェルカムガイドを閉じる。
+$key         = $GLOBALS['wpdb']->get_blog_prefix() . 'persisted_preferences';
+$preferences = get_user_meta( 1, $key, true );
+$preferences = is_array( $preferences ) ? $preferences : array();
+$preferences['core/edit-post'] = array_merge(
+	(array) ( $preferences['core/edit-post'] ?? array() ),
+	array( 'welcomeGuide' => false )
+);
+$preferences['_modified'] = gmdate( 'c' );
+update_user_meta( 1, $key, $preferences );
+```
+
+`landingPage` は `/wp-admin/post.php?post=1000&action=edit` にする。`verify.sh` は Cookie で自動ログインするので、そのまま確認できる。
 
 ## demo.php の注意点
 

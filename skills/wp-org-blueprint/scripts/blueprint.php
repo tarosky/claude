@@ -7,7 +7,7 @@
  *
  * 使い方:
  *   php blueprint.php status <plugin-dir>
- *       プラグインのスラッグ・ローカル版と WordPress.org 公開版のバージョン・既存 blueprint の有無を表示する
+ *       プラグインのスラッグ・ローカル版と WordPress.org 公開版のバージョン・blueprint の公開状態を表示する
  *   php blueprint.php init <plugin-dir>
  *       .wordpress-org/blueprints/blueprint.json と .claude/wp-org-blueprint/demo.php の雛形を作る（既存なら何もしない）
  *   php blueprint.php embed <plugin-dir>
@@ -101,16 +101,37 @@ function read_demo( string $dir ): string {
  * WordPress.org の公開情報を取得する（未公開なら null）
  */
 function fetch_published( string $slug ): ?array {
-	$url  = 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=' . rawurlencode( $slug );
+	$url  = 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[fields][blueprints]=1&request[slug]=' . rawurlencode( $slug );
 	$body = @file_get_contents( $url );
 	$info = $body ? json_decode( $body, true ) : null;
 	return ( is_array( $info ) && isset( $info['version'] ) ) ? $info : null;
 }
 
+/**
+ * WordPress.org 上の blueprint の状態を返す
+ *
+ * ps.w.org（SVN の配信 CDN）の有無だけではキャッシュや一時的な失敗で揺れるので、
+ * プラグイン API の blueprints / preview_link を正とし、ps.w.org は未インポートの判定にだけ使う。
+ *
+ * - public:   preview_link あり（Live Preview が一般公開済み）
+ * - imported: blueprints あり（インポート済み。コミッターの Test Preview で確認できる）
+ * - svn_only: SVN にはあるが未インポート（コミットから約 15 分のラグ）
+ * - none:     どこにも無い
+ */
+function blueprint_status( string $slug, ?array $published ): string {
+	if ( ! empty( $published['preview_link'] ) ) {
+		return 'public';
+	}
+	if ( ! empty( $published['blueprints'] ) ) {
+		return 'imported';
+	}
+	$headers = @get_headers( 'https://ps.w.org/' . $slug . '/assets/blueprints/blueprint.json' );
+	return ( $headers && false !== strpos( $headers[0], '200' ) ) ? 'svn_only' : 'none';
+}
+
 function cmd_status( string $dir ): void {
 	$plugin    = detect_plugin( $dir );
 	$published = fetch_published( $plugin['slug'] );
-	$headers   = @get_headers( 'https://ps.w.org/' . $plugin['slug'] . '/assets/blueprints/blueprint.json' );
 	$deploy    = array();
 	foreach ( glob( $dir . '/.github/workflows/*.y*ml' ) as $workflow ) {
 		$yaml = file_get_contents( $workflow );
@@ -134,7 +155,7 @@ function cmd_status( string $dir ): void {
 			'wp'  => $published['requires'] ?? null,
 			'php' => $published['requires_php'] ?? null,
 		) : null,
-		'published_blueprint' => ( $headers && false !== strpos( $headers[0], '200' ) ),
+		'blueprint_status'    => blueprint_status( $plugin['slug'], $published ),
 		'local_blueprint'     => file_exists( $dir . '/' . BLUEPRINT_PATH ),
 		'local_demo'          => file_exists( $dir . '/' . DEMO_PATH ),
 		'deploy_workflows'    => $deploy,
@@ -163,6 +184,10 @@ require '/wordpress/wp-load.php';
 // runPHP はログインユーザー無しで動く。権限チェックのある API（tax_input など）が黙って無視されるので、管理者として実行する。
 wp_set_current_user( 1 );
 
+// パーマリンク。update_option() だけでは $wp_rewrite が古い構造のままで、末尾の flush_rewrite_rules() が投稿のルールを書き出さない。
+global $wp_rewrite;
+$wp_rewrite->set_permalink_structure( '/%postname%/' );
+
 // TODO: プラグインの公開 API・モデルでデモデータを投入する。
 
 // 着地ページ: デモ用の固定ページをフロントページにする（ID は事前に分からないため）。
@@ -174,6 +199,8 @@ $page_id = wp_insert_post( array(
 ) );
 update_option( 'show_on_front', 'page' );
 update_option( 'page_on_front', $page_id );
+
+flush_rewrite_rules();
 
 PHP;
 		file_put_contents( $demo, $code );
