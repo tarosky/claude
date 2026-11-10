@@ -35,6 +35,14 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 ~/claude-config/scripts/install.sh --uninstall
 ```
 
+### スキルごとの前提
+
+一部のスキルは外部のツールを使います。
+
+| スキル | 前提 |
+|---|---|
+| `codex-review` | [Codex CLI](https://github.com/openai/codex) 0.167.0 以上をインストールし、`codex login` でログインしておく |
+
 ## ディレクトリ構造
 
 <!-- BEGIN:DIRECTORY_TREE -->
@@ -50,6 +58,8 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 │   ├── best-practice-extract/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── blog-eyecatch/
+│   │   └── SKILL.md (+ scripts/, references/)
+│   ├── codex-review/
 │   │   └── SKILL.md (+ scripts/, references/)
 │   ├── gas-automation/
 │   │   └── SKILL.md (+ scripts/, references/)
@@ -97,6 +107,7 @@ git clone git@github.com:tarosky/claude.git ~/claude-config
 |-------|------|
 | `best-practice-extract` | 複数リポジトリを横断してテーマ（CI・ビルド・テスト・命名規則など）の実装を調査し、ベストプラクティスを合議で決定して各リポジトリに一括適用・PR作成まで行う横断標準化スキル。 |
 | `blog-eyecatch` | Maintic（ja.wpplatform.maintic.com）のブログ記事タイトルから、アイキャッチ画像(1600x900)とog:image(1200x630)を生成する。記事タイトル一覧が確定した後のバッチ生成、または既存記事のog:image差し替えに使用する。 |
+| `codex-review` | Codex CLI（OpenAI）に作業中の差分を読み取り専用でレビューさせ、別系統のモデルによるセカンドオピニオンを得る。指摘はClaudeが1件ずつ根拠を確かめて「採用／却下／要確認」に分け、採用分だけ直す（再レビューはしない）。PR作成前のレビュー、「Codexに見てもらって」「セカンドオピニオンがほしい」ときに使用する。 |
 | `gas-automation` | Google Apps Script（GAS）とスプレッドシート/Gmailで社内自動化ツールを作る。空のディレクトリから対話で進め、ノーコーダーでも環境確認・利用形態の決定・コード作成・トリガー設定・引き継ぎ用READMEまで整えられる。「シートを自動で集計したい」「メールを自動で処理したい」「定期的に通知したい」など社内の小さな自動化を作りたいときに使用する。 |
 | `glotpress-translate` | GlotPress（translate.wordpress.org）からWordPressプラグイン/テーマのPOファイルをダウンロードし、未翻訳文字列をAIで翻訳してインポート用POを出力する。 |
 | `skill-review` | スキルセット棚卸しインタビュー。現在のスキル・興味・経験の変化を対話形式で確認し、~/.claude/CLAUDE.md を更新する。四半期に1回の実施を推奨。 |
